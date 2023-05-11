@@ -38,4 +38,44 @@ fn main() {
 
     // Compliation error: incompatible types
     // let number = if condition { 5 } else { "six" };
+
+    // Repetition with loop
+    // Infinite loop
+    // loop {
+    //     println!("again!");
+    // }
+
+    // Return values from loops
+    let mut counter = 0;
+    let result = loop {
+        counter += 1;
+
+        if counter == 10 {
+            break counter * 2
+        }
+    };
+
+    println!("The result is {result}");
+
+    // Loop labels to disambiguate between multiple loops
+    let mut count = 0;
+    // Specify loop label: `'counting_up` to an outer loop
+    'counting_up: loop {
+        println!("count = {count}");
+        let mut remaining = 10;
+
+        loop {
+            println!("remaining = {remaining}");
+            if remaining == 9 {
+                break; // Exit the innermost loop
+            }
+            if count == 2 {
+                break 'counting_up; // Exit the outer loop
+            }
+            remaining -= 1;
+        }
+
+        count += 1;
+    }
+    println!("End count = {count}");
 }
