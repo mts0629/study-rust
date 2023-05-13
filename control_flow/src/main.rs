@@ -78,4 +78,34 @@ fn main() {
         count += 1;
     }
     println!("End count = {count}");
+
+    let mut number = 3;
+
+    // while loop
+    while number != 0 {
+        println!("{number}!");
+        number -= 1;
+    }
+    println!("LIFTOFF!!!");
+
+    let a = [10, 20, 30, 40, 50];
+    let mut index = 0;
+
+    // Loop through a collection with while
+    while index < 5 {
+        println!("the value is: {}", a[index]);
+        index += 1;
+    }
+
+    // Loop through a collection with for
+    for element in a {
+        println!("the value is: {element}");
+    }
+
+    // Loop certain number of times
+    // (1..4).rev() -> [3, 2, 1]
+    for number in (1..4).rev() {
+        println!("{number}!");
+    }
+    println!("LIFTOFF!!!");
 }
