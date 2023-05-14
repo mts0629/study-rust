@@ -14,33 +14,27 @@ fn main() {
     }                           // This scope is now over, and s is no longer valid
                                 // The `drop` function is called automatically
 
-    {
-        let s1 = String::from("hello");
-        let s2 = s1;                    // A pointer which indicates "hello" is shared with s1
+    let s1 = String::from("hello");
+    let s2 = s1;                    // A pointer which indicates "hello" is shared with s1
 
-        println!("{s2}");
-        // println!("{s1}");    // Compilation error: `borrow of moved value`
-                                // s1 is "moved" to s2 and no longer valid
-                                // It avoids the "double free" of the heap data
-    }
+    println!("{s2}");
+    // println!("{s1}");    // Compilation error: `borrow of moved value`
+                            // s1 is "moved" to s2 and no longer valid
+                            // It avoids the "double free" of the heap data
 
-    {
-        let s1 = String::from("hello");
-        let s2 = s1.clone(); // Copy deeply the heap data
+    let s1 = String::from("hello");
+    let s2 = s1.clone(); // Copy deeply the heap data
 
-        println!("s1 = {s1}, s2 = {s2}");
-    }
+    println!("s1 = {s1}, s2 = {s2}");
 
-    {
-        let x = 5;
-        let y = x;
+    let x = 5;
+    let y = x;
 
-        println!("x = {}, y = {}", x, y);   // The types which are stored on the stack
-                                            // implement the `Copy` trait and don't be moved
-        // Some types that implement `Copy`:
-        //  integer (e.g. i32), bool, floating-point (e.g. f64), char,
-        //  tuples only contain types that also implement `Copy`
-    }
+    println!("x = {}, y = {}", x, y);   // The types which are stored on the stack
+                                        // implement the `Copy` trait and don't be moved
+    // Some types that implement `Copy`:
+    //  integer (e.g. i32), bool, floating-point (e.g. f64), char,
+    //  tuples only contain types that also implement `Copy`
 
     {
         let s = String::from("hello");
@@ -70,13 +64,11 @@ fn main() {
                                             // which also moves its return value into s3
     } // s3 and s1 are dropped.  s2 was moved
 
-    {
-        let s1 = String::from("hello");
+    let s1 = String::from("hello");
 
-        let (s2, len) = calculate_length(s1);
+    let (s2, len) = calculate_length(s1); // Get multiple return values
 
-        println!("The length of '{s2}' is {len}.");
-    }
+    println!("The length of '{s2}' is {len}.");
 }
 
 fn takes_ownership(some_string: String) {
