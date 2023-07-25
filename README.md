@@ -5,8 +5,8 @@ Rust の学習
 ## 環境
 
 - OS: Ubuntu 20.04 LTS
-- Rust 1.66
-- Cargo 1.60
+- Rust 1.65
+- Cargo 1.65
 
 ## 参考
 
