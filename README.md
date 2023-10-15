@@ -1,4 +1,4 @@
-# rust-study
+# study-rust
 
 Rust の学習
 
