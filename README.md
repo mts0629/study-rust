@@ -1,24 +1,23 @@
 # study-rust
 
-Rustの学習
+Study of Rust
 
-## 環境
-
-- OS: Ubuntu 20.04 LTS
-- Rust 1.65
-- Cargo 1.65
-
-## ソースコード・著作権
-
-本リポジトリに含まれるソースコードは、下記で公開されている内容を元に改変を加えたものです。
-
-未改変部の著作権は、原著作者様に帰属します。
-
-- [The Rust Programming Language](https://doc.rust-lang.org/book/)
+- [The Rust Programming Language (a.k.a. "Rust the book")](https://doc.rust-lang.org/book/)
 - [Rust by Example](https://doc.rust-lang.org/rust-by-example/)
 
-### 改変点
+- `the_book/` ... Tutorials in "Rust the book"
 
-- コーディングスタイルの調整
-- コメントの追加
-- プロジェクト・ファイル構成
+## License
+
+### `the_book/`
+
+- Apache License 2.0
+- MIT License
+
+Source codes in `the_book/` are based on the contents in a tutorial: "The Rust Programming Language" and following changes are included:
+
+- Changes for coding style
+- Comments
+- Modification for the project structure
+
+Copyright for non-modified parts belongs to the original author.
