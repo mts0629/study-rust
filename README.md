@@ -6,6 +6,7 @@ Study of Rust
 - [Rust by Example](https://doc.rust-lang.org/rust-by-example/)
 
 - `the_book/` ... Tutorials in "Rust the book"
+- `playground/` ... Small programs for study
 
 ## License
 
