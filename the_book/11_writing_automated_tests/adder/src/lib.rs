@@ -1,17 +1,22 @@
-use std::{thread, time};
-
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
 pub fn add_two(a: usize) -> usize {
-    a + 2
+    // a + 2
     // a + 3 // Bug
+    internal_adder(a, 2)
+}
+
+// Private function
+fn internal_adder(left: usize, right: usize) -> usize {
+    left + right
 }
 
 #[cfg(test)]
 mod tests {
     use super::*; // Bring outer modules
+    use std::{thread, time};
 
     #[test]
     fn exploration() {
@@ -72,5 +77,12 @@ mod tests {
         thread::sleep(one_hundred_sec);
 
         assert!(now.elapsed() >= one_hundred_sec);
+    }
+
+    // Test a private function
+    #[test]
+    fn internal() {
+        let result = internal_adder(2, 2);
+        assert_eq!(result, 4);
     }
 }
