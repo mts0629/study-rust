@@ -1,10 +1,10 @@
 [package]
-name = "hello"
+name = "fib"
 version = "0.1.0"
 edition = "2021"
 
 [profile.dev]
-opt-level = 1 # Default: 0
+opt-level = 0 # Default: 0
 
 [profile.release]
 opt-level = 3 # Full optimization
