@@ -8,7 +8,7 @@ pub use self::utils::mix;
 
 pub mod kinds {
     /// The primary colors according to the RYB color model.
-    #[derive(PartialEq)]
+    #[derive(Debug, PartialEq, PartialOrd)]
     pub enum PrimaryColor {
         Red,
         Yellow,
@@ -16,6 +16,7 @@ pub mod kinds {
     }
 
     /// The secondary colors according to the RYB color model.
+    #[derive(Debug)]
     pub enum SecondaryColor {
         Orange,
         Green,
@@ -30,14 +31,14 @@ pub mod utils {
     /// Combines two primary colors in equal amounts to create
     /// a secondary color.
     pub fn mix(c1: PrimaryColor, c2: PrimaryColor) -> SecondaryColor {
-        if c1 == PrimaryColor::Red && c2 == PrimaryColor::Yellow {
-            SecondaryColor::Orange
-        } else if c1 == PrimaryColor::Red && c2 == PrimaryColor::Blue {
-            SecondaryColor::Purple
-        } else if c1 == PrimaryColor::Yellow && c2 == PrimaryColor::Blue {
-            SecondaryColor::Green
-        } else {
-            SecondaryColor::Ambiguous
+        // Reorder colors to ignore an order of arguments
+        let (a, b) = if c1 <= c2 { (c1, c2) } else { (c2, c1) };
+
+        match (a, b) {
+            (PrimaryColor::Red, PrimaryColor::Yellow) => SecondaryColor::Orange,
+            (PrimaryColor::Red, PrimaryColor::Blue) => SecondaryColor::Purple,
+            (PrimaryColor::Yellow, PrimaryColor::Blue) => SecondaryColor::Green,
+            _ => SecondaryColor::Ambiguous,
         }
     }
 }
