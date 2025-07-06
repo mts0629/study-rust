@@ -4,11 +4,13 @@ use std::process;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2 {
-        eprintln!("Error: not enough arguments");
+    let paths = minicat::get_args(&args).unwrap_or_else(|err| {
+        eprintln!("{err}");
         process::exit(1);
-    }
+    });
 
-    let file_paths = &args[1..];
-    minicat::run(file_paths)
+    match minicat::run(paths) {
+        Err(_) => process::exit(1),
+        _ => return,
+    }
 }
