@@ -1,7 +1,8 @@
 use std::fs;
 
+// Get arguments
 pub fn get_args(args: &Vec<String>) -> Result<&[String], &'static str> {
-    if args.len() > 2 {
+    if args.len() >= 2 {
         Ok(&args[1..])
     } else {
         Err("Not enough arguments")
@@ -49,6 +50,18 @@ pub fn run(file_paths: &[String]) -> Result<i32, i32> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn get_argument() {
+        let args = vec![String::from("command"), String::from("file_path_1")];
+
+        match get_args(&args) {
+            Ok(file_paths) => {
+                assert_eq!(file_paths[0], "file_path_1");
+            }
+            Err(_) => assert!(false),
+        }
+    }
 
     #[test]
     fn get_arguments() {
