@@ -1,0 +1,12 @@
+use std::env;
+use std::fs;
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    let entries = fs::read_dir(&args[1]).unwrap();
+
+    for entry in entries {
+        println!("{:?}", entry.unwrap().file_name())
+    }
+}
