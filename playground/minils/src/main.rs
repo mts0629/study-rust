@@ -1,12 +1,19 @@
 use std::env;
-use std::fs;
+use std::process;
+use minils::run;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let entries = fs::read_dir(&args[1]).unwrap();
-
-    for entry in entries {
-        println!("{:?}", entry.unwrap().file_name())
+    match run(&args[1..]) {
+        Ok(paths) => {
+            for path in paths {
+                println!("{path}")
+            }
+        },
+        Err(err) => {
+            eprintln!("{err}");
+            process::exit(1);
+        }
     }
 }
