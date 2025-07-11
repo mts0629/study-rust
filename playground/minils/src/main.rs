@@ -1,6 +1,6 @@
+use minils::run;
 use std::env;
 use std::process;
-use minils::run;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,7 +10,7 @@ fn main() {
             for path in paths {
                 println!("{path}")
             }
-        },
+        }
         Err(err) => {
             eprintln!("{err}");
             process::exit(1);
