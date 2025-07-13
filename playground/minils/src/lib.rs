@@ -1,6 +1,15 @@
 use std::error::Error;
 use std::fs;
 
+// Get path strings from arguments
+pub fn get_paths(args: &[String]) -> Vec<String> {
+    if args.len() == 1 {
+        vec![String::from(".")]
+    } else {
+        args[1..].to_vec()
+    }
+}
+
 // Get a list of entries in the specified path
 fn get_dir_entries(path: &String) -> Result<Vec<String>, Box<dyn Error>> {
     let entries = match fs::read_dir(path) {
@@ -25,7 +34,7 @@ fn print_entries(entries: Vec<String>) {
     println!("{}", entries.join("  "));
 }
 
-pub fn run(paths: &[String]) -> Result<(), Box<dyn Error>> {
+pub fn run(paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     let dir_entries = get_dir_entries(&paths[0])?;
 
     print_entries(dir_entries);
