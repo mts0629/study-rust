@@ -9,8 +9,7 @@ fn main() {
         process::exit(1);
     });
 
-    match minicat::run(paths) {
-        Err(_) => process::exit(1),
-        _ => return,
+    if let Err(_) = minicat::run(paths) {
+        process::exit(1);
     }
 }

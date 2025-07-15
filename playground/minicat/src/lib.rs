@@ -1,9 +1,9 @@
 use std::fs;
 
-// Get arguments
-pub fn get_args(args: &Vec<String>) -> Result<&[String], &'static str> {
+// Get path strings from arguments
+pub fn get_args(args: &Vec<String>) -> Result<Vec<String>, &'static str> {
     if args.len() >= 2 {
-        Ok(&args[1..])
+        Ok(args[1..].to_vec())
     } else {
         Err("Not enough arguments")
     }
@@ -30,7 +30,7 @@ fn print_file_content(file_path: &String) -> Option<()> {
 }
 
 // Print file contents to STDOUT
-pub fn run(file_paths: &[String]) -> Result<i32, i32> {
+fn cat(file_paths: &Vec<String>) -> Result<i32, i32> {
     let mut num_errs = 0;
 
     for file_path in file_paths {
@@ -44,6 +44,13 @@ pub fn run(file_paths: &[String]) -> Result<i32, i32> {
         Err(num_errs)
     } else {
         Ok(0)
+    }
+}
+
+pub fn run(file_paths: Vec<String>) -> Result<(), ()> {
+    match cat(&file_paths) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(()),
     }
 }
 
@@ -118,7 +125,7 @@ mod tests {
 
         match get_file_content(&file_path[0]) {
             Ok(_) => assert!(false),
-            Err(err) => assert!(true),
+            Err(_) => assert!(true),
         }
     }
 
@@ -138,7 +145,7 @@ mod tests {
     fn cat_a_file() {
         let file_path = vec![String::from("./test/test.txt")];
 
-        match run(&file_path[0..]) {
+        match cat(&file_path) {
             Ok(n_errs) => assert_eq!(n_errs, 0), // Doesn't check STDOUT
             Err(_) => assert!(false),
         }
@@ -151,7 +158,7 @@ mod tests {
             String::from("./test/test.bin"),
         ];
 
-        match run(&file_paths[0..]) {
+        match cat(&file_paths) {
             Ok(n_errs) => assert_eq!(n_errs, 0),
             Err(_) => assert!(false),
         }
@@ -161,7 +168,7 @@ mod tests {
     fn cat_invalid_file() {
         let file_path = vec![String::from("./test/missing.txt")];
 
-        match run(&file_path[0..]) {
+        match cat(&file_path) {
             Ok(_) => assert!(false),
             Err(n_errs) => assert_eq!(n_errs, 1),
         }
@@ -175,7 +182,7 @@ mod tests {
             String::from("./test/test.bin"),
         ];
 
-        match run(&file_paths[0..]) {
+        match cat(&file_paths) {
             Ok(_) => assert!(false),
             Err(n_errs) => assert_eq!(n_errs, 1),
         }
