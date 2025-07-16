@@ -1,4 +1,6 @@
+use std::error::Error;
 use std::fs;
+use std::io::Write;
 
 // Get path strings from arguments
 pub fn get_args(args: &Vec<String>) -> Result<Vec<String>, &'static str> {
@@ -9,35 +11,27 @@ pub fn get_args(args: &Vec<String>) -> Result<Vec<String>, &'static str> {
     }
 }
 
-// Just a wrapper of fs::read_to_string
-// Handling all I/O errors is difficult, so leave it to stdlib X(
-fn get_file_content(file_path: &String) -> Result<String, std::io::Error> {
-    fs::read_to_string(file_path)
-}
-
-// Print a file content to STDOUT
-fn print_file_content(file_path: &String) -> Option<()> {
-    match get_file_content(file_path) {
+// Print a file content
+fn print_file_content<W: Write>(mut writer: W, file_path: &String) -> Result<(), Box<dyn Error>> {
+    match fs::read_to_string(file_path) {
         Ok(content) => {
-            print!("{content}");
-            Some(())
+            write!(writer, "{content}")?;
         }
-        Err(err) => {
-            eprintln!("{file_path}: {err}");
-            None
-        }
+        Err(err) => return Err(Box::new(err)),
     }
+
+    Ok(())
 }
 
-// Print file contents to STDOUT
-fn cat(file_paths: &Vec<String>) -> Result<i32, i32> {
+// Print file contents
+fn cat<W: Write>(mut writer: W, file_paths: &Vec<String>) -> Result<i32, i32> {
     let mut num_errs = 0;
 
     for file_path in file_paths {
-        num_errs += match print_file_content(&file_path) {
-            None => 1,
-            _ => 0,
-        };
+        if let Err(err) = print_file_content(&mut writer, &file_path) {
+            eprintln!("{file_path}: {err}");
+            num_errs += 1;
+        }
     }
 
     if num_errs > 0 {
@@ -48,7 +42,7 @@ fn cat(file_paths: &Vec<String>) -> Result<i32, i32> {
 }
 
 pub fn run(file_paths: Vec<String>) -> Result<(), ()> {
-    match cat(&file_paths) {
+    match cat(std::io::stdout(), &file_paths) {
         Ok(_) => Ok(()),
         Err(_) => Err(()),
     }
@@ -100,30 +94,11 @@ mod tests {
     }
 
     #[test]
-    fn get_text_file_content() {
-        let file_path = vec![String::from("./test/test.txt")];
-
-        match get_file_content(&file_path[0]) {
-            Ok(content) => assert_eq!(content, "hello\n"),
-            Err(_) => assert!(false),
-        }
-    }
-
-    #[test]
-    fn get_binary_file_content() {
-        let file_path = vec![String::from("./test/test.bin")];
-
-        match get_file_content(&file_path[0]) {
-            Ok(content) => assert_eq!(content, "hello\0"),
-            Err(_) => assert!(false),
-        }
-    }
-
-    #[test]
     fn try_to_access_non_existing_file() {
         let file_path = vec![String::from("./test/missing.txt")];
+        let mut buf = Vec::new();
 
-        match get_file_content(&file_path[0]) {
+        match print_file_content(&mut buf, &file_path[0]) {
             Ok(_) => assert!(false),
             Err(_) => assert!(true),
         }
@@ -132,8 +107,9 @@ mod tests {
     #[test]
     fn try_to_access_directory() {
         let file_path = vec![String::from("./test/")];
+        let mut buf = Vec::new();
 
-        match get_file_content(&file_path[0]) {
+        match print_file_content(&mut buf, &file_path[0]) {
             Ok(_) => assert!(false),
             Err(_) => assert!(true),
         }
@@ -144,9 +120,27 @@ mod tests {
     #[test]
     fn cat_a_file() {
         let file_path = vec![String::from("./test/test.txt")];
+        let mut buf = Vec::new();
 
-        match cat(&file_path) {
-            Ok(n_errs) => assert_eq!(n_errs, 0), // Doesn't check STDOUT
+        match cat(&mut buf, &file_path) {
+            Ok(n_errs) => {
+                assert_eq!(n_errs, 0);
+                assert_eq!(String::from_utf8(buf).unwrap(), "hello\n");
+            }
+            Err(_) => assert!(false),
+        }
+    }
+
+    #[test]
+    fn cat_a_binary_file() {
+        let file_path = vec![String::from("./test/test.bin")];
+        let mut buf = Vec::new();
+
+        match cat(&mut buf, &file_path) {
+            Ok(n_errs) => {
+                assert_eq!(n_errs, 0);
+                assert_eq!(String::from_utf8(buf).unwrap(), "hello\0");
+            }
             Err(_) => assert!(false),
         }
     }
@@ -157,9 +151,13 @@ mod tests {
             String::from("./test/test.txt"),
             String::from("./test/test.bin"),
         ];
+        let mut buf = Vec::new();
 
-        match cat(&file_paths) {
-            Ok(n_errs) => assert_eq!(n_errs, 0),
+        match cat(&mut buf, &file_paths) {
+            Ok(n_errs) => {
+                assert_eq!(n_errs, 0);
+                assert_eq!(String::from_utf8(buf).unwrap(), "hello\nhello\0");
+            }
             Err(_) => assert!(false),
         }
     }
@@ -167,8 +165,9 @@ mod tests {
     #[test]
     fn cat_invalid_file() {
         let file_path = vec![String::from("./test/missing.txt")];
+        let mut buf = Vec::new();
 
-        match cat(&file_path) {
+        match cat(&mut buf, &file_path) {
             Ok(_) => assert!(false),
             Err(n_errs) => assert_eq!(n_errs, 1),
         }
@@ -181,10 +180,15 @@ mod tests {
             String::from("./test/missing.txt"),
             String::from("./test/test.bin"),
         ];
+        let mut buf = Vec::new();
 
-        match cat(&file_paths) {
+        match cat(&mut buf, &file_paths) {
             Ok(_) => assert!(false),
-            Err(n_errs) => assert_eq!(n_errs, 1),
+            Err(n_errs) => {
+                assert_eq!(n_errs, 1);
+                // Output all printable contents
+                assert_eq!(String::from_utf8(buf).unwrap(), "hello\nhello\0");
+            }
         }
     }
 }
