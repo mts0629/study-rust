@@ -4,10 +4,7 @@ use std::process;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let paths = minicat::get_paths(&args).unwrap_or_else(|err| {
-        eprintln!("{err}");
-        process::exit(1);
-    });
+    let paths = minicat::get_paths(&args);
 
     if let Err(_) = minicat::run(paths) {
         process::exit(1);

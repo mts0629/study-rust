@@ -3,11 +3,11 @@ use std::fs;
 use std::io::Write;
 
 // Get path strings from arguments
-pub fn get_paths(args: &Vec<String>) -> Result<Vec<String>, &'static str> {
+pub fn get_paths(args: &Vec<String>) -> Vec<String> {
     if args.len() >= 2 {
-        Ok(args[1..].to_vec())
+        args[1..].to_vec()
     } else {
-        Err("Not enough arguments")
+        vec![String::from("")]
     }
 }
 
@@ -23,8 +23,26 @@ fn print_file_content<W: Write>(mut writer: W, file_path: &String) -> Result<(),
     Ok(())
 }
 
-// Print file contents
+// Print STDIN or file contents
 fn cat<W: Write>(mut writer: W, file_paths: &Vec<String>) -> Result<(), i32> {
+    // Print STDIN
+    if file_paths[0] == "" {
+        let mut buffer = String::new();
+        loop {
+            if let Err(err) = std::io::stdin().read_line(&mut buffer) {
+                eprintln!("{err}");
+                return Err(1);
+            }
+
+            if let Err(err) = write!(writer, "{buffer}") {
+                eprintln!("{err}");
+                return Err(1);
+            }
+
+            buffer.clear();
+        }
+    }
+
     let mut num_errs = 0;
 
     for file_path in file_paths {
@@ -56,12 +74,12 @@ mod tests {
     fn get_argument() {
         let args = vec![String::from("command"), String::from("file_path_1")];
 
-        match get_paths(&args) {
-            Ok(file_paths) => {
-                assert_eq!(file_paths[0], "file_path_1");
-            }
-            Err(_) => assert!(false),
-        }
+        let file_paths = get_paths(&args);
+        assert_eq!(file_paths[0], "file_path_1");
+        //     Ok(file_paths) => {
+        //     }
+        //     Err(_) => assert!(false),
+        // }
     }
 
     #[test]
@@ -72,25 +90,30 @@ mod tests {
             String::from("file_path_2"),
         ];
 
-        match get_paths(&args) {
-            Ok(file_paths) => {
-                assert_eq!(file_paths[0], "file_path_1");
-                assert_eq!(file_paths[1], "file_path_2");
-            }
-            Err(_) => assert!(false),
-        }
+        let file_paths = get_paths(&args);
+        assert_eq!(file_paths[0], "file_path_1");
+        assert_eq!(file_paths[1], "file_path_2");
+        // match get_paths(&args) {
+        //     Ok(file_paths) => {
+        //         assert_eq!(file_paths[0], "file_path_1");
+        //         assert_eq!(file_paths[1], "file_path_2");
+        //     }
+        //     Err(_) => assert!(false),
+        // }
     }
 
     #[test]
     fn arguments_are_not_enough() {
         let args = vec![String::from("command")];
 
-        match get_paths(&args) {
-            Ok(_) => assert!(false),
-            Err(err_msg) => {
-                assert_eq!(err_msg, "Not enough arguments");
-            }
-        }
+        let file_paths = get_paths(&args);
+        assert_eq!(file_paths[0], "");
+        // match get_paths(&args) {
+        //     Ok(_) => assert!(false),
+        //     Err(err_msg) => {
+        //         assert_eq!(err_msg, "Not enough arguments");
+        //     }
+        // }
     }
 
     #[test]
