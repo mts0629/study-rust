@@ -1,13 +1,13 @@
 use std::error::Error;
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 
-// Get path strings from arguments
-pub fn get_paths(args: &Vec<String>) -> Vec<String> {
+// Get a list of input from arguments
+pub fn get_inputs(args: &Vec<String>) -> Vec<String> {
     if args.len() >= 2 {
         args[1..].to_vec()
     } else {
-        vec![String::from("")]
+        vec![]
     }
 }
 
@@ -24,39 +24,35 @@ fn print_file_content<W: Write>(mut writer: W, file_path: &String) -> Result<(),
 }
 
 // Print STDIN or file contents
-fn cat<W: Write>(mut writer: W, file_paths: &Vec<String>) -> Result<(), i32> {
-    // Print STDIN
-    if file_paths[0] == "" {
+fn cat<W: Write>(mut writer: W, inputs: &Vec<String>) -> Result<(), i32> {
+    if inputs.len() == 0 {
+        // Print STDIN
         let mut buffer = String::new();
-        loop {
-            if let Err(err) = std::io::stdin().read_line(&mut buffer) {
-                eprintln!("{err}");
-                return Err(1);
-            }
-
-            if let Err(err) = write!(writer, "{buffer}") {
-                eprintln!("{err}");
-                return Err(1);
-            }
-
-            buffer.clear();
+        if let Err(err) = std::io::stdin().read_to_string(&mut buffer) {
+            eprintln!("{err}");
+            return Err(1);
         }
-    }
 
-    let mut num_errs = 0;
-
-    for file_path in file_paths {
-        if let Err(err) = print_file_content(&mut writer, &file_path) {
-            eprintln!("{file_path}: {err}");
-            num_errs += 1;
+        if let Err(err) = write!(writer, "{buffer}") {
+            eprintln!("{err}");
+            return Err(1);
         }
-    }
-
-    if num_errs > 0 {
-        Err(num_errs)
     } else {
-        Ok(())
+        // Print files
+        let mut num_errs = 0;
+
+        for input in inputs {
+            if let Err(err) = print_file_content(&mut writer, &input) {
+                eprintln!("{input}: {err}");
+                num_errs += 1;
+            }
+        }
+        if num_errs > 0 {
+            return Err(num_errs);
+        }
     }
+
+    Ok(())
 }
 
 pub fn run(file_paths: Vec<String>) -> Result<(), ()> {
@@ -71,49 +67,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn get_argument() {
+    fn get_input() {
         let args = vec![String::from("command"), String::from("file_path_1")];
 
-        let file_paths = get_paths(&args);
+        let file_paths = get_inputs(&args);
         assert_eq!(file_paths[0], "file_path_1");
-        //     Ok(file_paths) => {
-        //     }
-        //     Err(_) => assert!(false),
-        // }
     }
 
     #[test]
-    fn get_arguments() {
+    fn get_multiple_inputs() {
         let args = vec![
             String::from("command"),
             String::from("file_path_1"),
             String::from("file_path_2"),
         ];
 
-        let file_paths = get_paths(&args);
+        let file_paths = get_inputs(&args);
         assert_eq!(file_paths[0], "file_path_1");
         assert_eq!(file_paths[1], "file_path_2");
-        // match get_paths(&args) {
-        //     Ok(file_paths) => {
-        //         assert_eq!(file_paths[0], "file_path_1");
-        //         assert_eq!(file_paths[1], "file_path_2");
-        //     }
-        //     Err(_) => assert!(false),
-        // }
     }
 
     #[test]
-    fn arguments_are_not_enough() {
+    fn no_inputs() {
         let args = vec![String::from("command")];
 
-        let file_paths = get_paths(&args);
-        assert_eq!(file_paths[0], "");
-        // match get_paths(&args) {
-        //     Ok(_) => assert!(false),
-        //     Err(err_msg) => {
-        //         assert_eq!(err_msg, "Not enough arguments");
-        //     }
-        // }
+        let file_paths = get_inputs(&args);
+        assert_eq!(file_paths.len(), 0);
     }
 
     #[test]
