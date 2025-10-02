@@ -1,3 +1,5 @@
+/*
+// By state pattern
 // Blog post
 pub struct Post {
     state: Option<Box<dyn State>>,
@@ -89,5 +91,56 @@ impl State for Published {
     // Only Published post returns the content
     fn content<'a>(&self, post: &'a Post) -> &'a str {
         &post.content
+    }
+}
+*/
+
+// By encoding state and behavior as types
+pub struct Post {
+    content: String,
+}
+
+impl Post {
+    // Create a new post
+    pub fn new() -> DraftPost {
+        DraftPost {
+            content: String::new(),
+        }
+    }
+
+    // Return a content of the post
+    pub fn content(&self) -> &str {
+        &self.content
+    }
+}
+
+pub struct DraftPost {
+    content: String,
+}
+
+impl DraftPost {
+    // Add a text content to the post
+    pub fn add_text(&mut self, text: &str) {
+        self.content.push_str(text);
+    }
+
+    // Request a review
+    pub fn request_review(self) -> PendingReviewPost {
+        PendingReviewPost {
+            content: self.content,
+        }
+    }
+}
+
+pub struct PendingReviewPost {
+    content: String,
+}
+
+impl PendingReviewPost {
+    // Approve the post
+    pub fn approve(self) -> Post {
+        Post {
+            content: self.content,
+        }
     }
 }
