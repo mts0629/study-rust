@@ -48,6 +48,52 @@ impl Add<Meters> for Millimeters {
     }
 }
 
+trait Pilot {
+    fn fly(&self);
+}
+
+trait Wizard {
+    fn fly(&self);
+}
+
+struct Human;
+
+impl Pilot for Human {
+    fn fly(&self) {
+        println!("This is your captain speaking.");
+    }
+}
+
+impl Wizard for Human {
+    fn fly(&self) {
+        println!("Up!");
+    }
+}
+
+impl Human {
+    fn fly(&self) {
+        println!("*waving arms furiously*");
+    }
+}
+
+trait Animal {
+    fn baby_name() -> String;
+}
+
+struct Dog;
+
+impl Dog {
+    fn baby_name() -> String {
+        String::from("Spot")
+    }
+}
+
+impl Animal for Dog {
+    fn baby_name() -> String {
+        String::from("puppy")
+    }
+}
+
 fn main() {
     let mut counter = Counter { count: 0 };
 
@@ -67,4 +113,15 @@ fn main() {
     let m = Meters { 0: 1 };
     let mm = Millimeters { 0: 100 };
     println!("{:?}", mm + m);
+
+    // Call specific method implemented on each trait
+    let person = Human;
+    person.fly(); // Human::fly(&person);
+    Pilot::fly(&person);
+    Wizard::fly(&person);
+
+    // Associated function on Dog type will be called
+    println!("A baby dog is called a {}", Dog::baby_name());
+    // Call an associated function on Animal trait by fully qualified syntax
+    println!("A baby dog is called a {}", <Dog as Animal>::baby_name());
 }
