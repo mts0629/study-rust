@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::Add;
 
 struct Counter {
@@ -94,6 +95,46 @@ impl Animal for Dog {
     }
 }
 
+// OutlinePrint trait, which requires fmt::Display as a supertrait
+trait OutlinePrint: fmt::Display {
+    fn outline_print(&self) {
+        let output = self.to_string(); // From Display trait
+        let len = output.len();
+        println!("{}", "*".repeat(len + 4));
+        println!("*{}*", " ".repeat(len + 2));
+        println!("* {output} *");
+        println!("*{}*", " ".repeat(len + 2));
+        println!("{}", "*".repeat(len + 4));
+    }
+}
+
+struct Point2D {
+    x: i32,
+    y: i32,
+}
+
+// Implement fmt::Display trait:
+// supertrait of OutlinePrint to Point2D
+impl fmt::Display for Point2D {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+// Implement OutlinePrint trait to Point2D
+impl OutlinePrint for Point2D {}
+
+// Newtype pattern:
+// implement trait to a local wrapper tuple struct,
+// which has a type defined outside our crate
+struct Wrapper(Vec<String>);
+
+impl fmt::Display for Wrapper {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}]", self.0.join(", "))
+    }
+}
+
 fn main() {
     let mut counter = Counter { count: 0 };
 
@@ -124,4 +165,10 @@ fn main() {
     println!("A baby dog is called a {}", Dog::baby_name());
     // Call an associated function on Animal trait by fully qualified syntax
     println!("A baby dog is called a {}", <Dog as Animal>::baby_name());
+
+    let p = Point2D { x: 1, y: 2 };
+    p.outline_print();
+
+    let w = Wrapper(vec![String::from("hello"), String::from("world")]);
+    println!("w = {w}");
 }
