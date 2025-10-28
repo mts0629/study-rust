@@ -1,3 +1,11 @@
+// Diverging functions with never type
+fn bar() -> ! {
+    // Infinite loop
+    loop {
+        println!("forever");
+    }
+}
+
 fn main() {
     // Type alias: Kilometers, synonym for i32
     type Kilometers = i32;
