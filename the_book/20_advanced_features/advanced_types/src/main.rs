@@ -20,4 +20,19 @@ fn main() {
 
     // let f: Box<dyn Fn() + Send + 'static> = Box::new(|| println!("hi"));
     let f: Thunk = Box::new(|| println!("hi"));
+
+    // str is Dynamically sized types (DST)
+    // Its size is not known at compile time, so use a reference
+    let s1: &str = "Hello there!";
+    let s2: &str = "How's it going?";
+}
+
+// Sized trait: size is known at compile time
+fn generic<T: Sized>(t: T) {
+    // ...
+}
+
+// Sized trait: size is known at compile time
+fn generic_fuzzy<T: ?Sized>(t: &T) {
+    // ...
 }
