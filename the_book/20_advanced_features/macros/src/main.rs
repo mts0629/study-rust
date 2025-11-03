@@ -1,5 +1,6 @@
 use hello_macro::HelloMacro;
 use hello_macro_derive::HelloMacro;
+use hello_macro_derive::prologue;
 
 // Declarative macro
 // Initialization of vector like `vec!` macro
@@ -21,6 +22,12 @@ macro_rules! vec_new {
 #[derive(HelloMacro)]
 struct Pancakes;
 
+// Attribute-like macro
+#[prologue]
+fn hello_after_prologue() {
+    println!("Hello");
+}
+
 fn main() {
     let v: Vec<u32> = vec_new![1, 2, 3];
 
@@ -30,4 +37,6 @@ fn main() {
 
     // Call a `hello_macro` function from `HelloMacro` trait
     Pancakes::hello_macro();
+
+    hello_after_prologue();
 }
