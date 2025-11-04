@@ -1,6 +1,7 @@
 use hello_macro::HelloMacro;
 use hello_macro_derive::HelloMacro;
 use hello_macro_derive::prologue;
+use hello_macro_derive::uppercase;
 
 // Declarative macro
 // Initialization of vector like `vec!` macro
@@ -39,4 +40,7 @@ fn main() {
     Pancakes::hello_macro();
 
     hello_after_prologue();
+
+    // Call a function-like macro
+    println!("{}", uppercase!("hello"));
 }

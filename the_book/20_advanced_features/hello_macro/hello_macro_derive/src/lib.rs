@@ -49,3 +49,20 @@ fn impl_prologue_macro(item_ast: &syn::ItemFn) -> TokenStream {
     };
     generated.into()
 }
+
+// Function-like macro `uppercase`
+#[proc_macro]
+pub fn uppercase(input: TokenStream) -> TokenStream {
+    let ast = syn::parse_macro_input!(input as syn::LitStr);
+
+    impl_uppercase(&ast)
+}
+
+fn impl_uppercase(ast: &syn::LitStr) -> TokenStream {
+    let s = ast.value().to_uppercase();
+
+    let generated = quote! {
+        #s
+    };
+    generated.into()
+}
