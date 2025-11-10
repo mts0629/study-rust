@@ -71,3 +71,14 @@ impl ThreadPool {
         self.sender.send(job).unwrap();
     }
 }
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        // Drop Worker from workers and call join to finish it
+        for worker in &mut self.workers.drain(..) {
+            println!("Shutting down worker {}", worker.id);
+
+            worker.thread.join().unwrap();
+        }
+    }
+}
