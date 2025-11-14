@@ -2,6 +2,27 @@ use std::env;
 use std::fs;
 use std::process;
 
+fn print_hex(content: Vec<u8>, col_size: u32) {
+    let mut byte_index = 0;
+    let mut col = 0;
+    for byte in content {
+        if col == 0 {
+            print!("0x{byte_index:04x} | ");
+        }
+
+        print!("{byte:02x} ");
+        col += 1;
+        byte_index += 1;
+
+        if col == col_size {
+            println!("");
+            col = 0
+        }
+    }
+
+    println!("");
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -13,13 +34,13 @@ fn main() {
         }
     };
 
-    match fs::read_to_string(file_path) {
-        Ok(content) => {
-            print!("{content}");
-        }
+    let content = match fs::read(file_path) {
+        Ok(content) => content,
         Err(err) => {
             eprintln!("Error: {err}");
             process::exit(1);
         }
-    }
+    };
+
+    print_hex(content, 16);
 }
