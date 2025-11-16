@@ -24,28 +24,30 @@ fn print_hex(file_path: &str, col_size: u32) -> Result<(), String> {
     let mut ofs = 0;
     let mut col = 0;
     for line in reader.lines() {
-        let bytes = match line?.into_iter().collect::<Result<Vec<_>, _>>() {
-            Ok(bytes) => bytes,
-            Err(err) => return Err(err.to_string()),
+        let line = match line {
+            Ok(line) => line,
+            Err(err) => {
+                return Err(err.to_string());
+            }
         };
 
-        for byte in bytes {
+        for byte in line.bytes() {
             if col == 0 {
                 print!("0x{ofs:04x} | ");
             }
 
             print!("{byte:02x} ");
             col += 1;
-            ofs += 1;
 
             if col == col_size {
                 println!("");
+                ofs += col_size;
                 col = 0
             }
         }
     }
 
-    println!("");
+    println!(""); // Line break at the last
 
     Ok(())
 }
