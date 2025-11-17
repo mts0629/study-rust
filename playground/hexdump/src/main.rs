@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::io::{BufRead, BufReader};
+use std::io::{BufReader, Read};
 use std::process;
 
 fn get_file_path() -> Option<String> {
@@ -23,27 +23,25 @@ fn print_hex(file_path: &str, col_size: u32) -> Result<(), String> {
 
     let mut ofs = 0;
     let mut col = 0;
-    for line in reader.lines() {
-        let line = match line {
-            Ok(line) => line,
+    for byte in reader.bytes() {
+        let b = match byte {
+            Ok(byte) => byte,
             Err(err) => {
                 return Err(err.to_string());
             }
         };
 
-        for byte in line.bytes() {
-            if col == 0 {
-                print!("0x{ofs:04x} | ");
-            }
+        if col == 0 {
+            print!("0x{ofs:04x} | ");
+        }
 
-            print!("{byte:02x} ");
-            col += 1;
+        print!("{b:02x} ");
+        col += 1;
 
-            if col == col_size {
-                println!("");
-                ofs += col_size;
-                col = 0
-            }
+        if col == col_size {
+            println!("");
+            ofs += col_size;
+            col = 0
         }
     }
 
