@@ -13,13 +13,15 @@ fn get_file_path() -> Option<String> {
     }
 }
 
-fn print_hex(file_path: &str, col_size: u32) -> Result<(), String> {
+fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
     let f = match fs::File::open(file_path) {
         Ok(f) => f,
         Err(err) => return Err(err.to_string()),
     };
 
     let reader = BufReader::new(f);
+
+    let mut bytes: Vec<u8> = Vec::with_capacity(col_size);
 
     let mut ofs = 0;
     let mut col = 0;
@@ -38,10 +40,41 @@ fn print_hex(file_path: &str, col_size: u32) -> Result<(), String> {
         print!("{b:02x} ");
         col += 1;
 
+        bytes.push(b);
+
         if col == col_size {
+            print!("| ");
+
+            // Print characters
+            for b in &bytes {
+                let c = *b as char;
+                if c.is_control() {
+                    print!(".");
+                } else {
+                    print!("{c}");
+                }
+            }
+            bytes.clear();
             println!("");
+
             ofs += col_size;
             col = 0
+        }
+    }
+
+    // Fill columns
+    while col < col_size {
+        print!("   ");
+        col += 1;
+    }
+
+    print!("| ");
+    for b in &bytes {
+        let c = *b as char;
+        if c.is_control() {
+            print!(".");
+        } else {
+            print!("{c}");
         }
     }
 
