@@ -13,6 +13,19 @@ fn get_file_path() -> Option<String> {
     }
 }
 
+fn print_chars(bytes: &Vec<u8>) {
+    print!("| ");
+
+    for b in bytes {
+        let c = *b as char;
+        if c.is_control() {
+            print!(".");
+        } else {
+            print!("{c}");
+        }
+    }
+}
+
 fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
     let f = match fs::File::open(file_path) {
         Ok(f) => f,
@@ -43,19 +56,9 @@ fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
         bytes.push(b);
 
         if col == col_size {
-            print!("| ");
-
-            // Print characters
-            for b in &bytes {
-                let c = *b as char;
-                if c.is_control() {
-                    print!(".");
-                } else {
-                    print!("{c}");
-                }
-            }
-            bytes.clear();
+            print_chars(&bytes);
             println!("");
+            bytes.clear();
 
             ofs += col_size;
             col = 0
@@ -68,15 +71,7 @@ fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
         col += 1;
     }
 
-    print!("| ");
-    for b in &bytes {
-        let c = *b as char;
-        if c.is_control() {
-            print!(".");
-        } else {
-            print!("{c}");
-        }
-    }
+    print_chars(&bytes);
 
     println!(""); // Line break at the last
 
