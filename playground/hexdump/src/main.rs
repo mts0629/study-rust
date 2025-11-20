@@ -3,9 +3,17 @@ use std::fs;
 use std::io::{BufReader, Read};
 use std::process;
 
-fn get_file_path() -> Option<String> {
-    let args: Vec<String> = env::args().collect();
+fn get_flag(args: &Vec<String>, opt: &str) -> bool {
+    for arg in args {
+        if arg == opt {
+            return true;
+        }
+    }
 
+    false
+}
+
+fn get_file_path(args: &Vec<String>) -> Option<String> {
     if args.len() < 2 {
         None
     } else {
@@ -26,7 +34,7 @@ fn print_chars(bytes: &Vec<u8>) {
     }
 }
 
-fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
+fn print_hex(file_path: &str, col_size: usize, print_char: bool) -> Result<(), String> {
     let f = match fs::File::open(file_path) {
         Ok(f) => f,
         Err(err) => return Err(err.to_string()),
@@ -56,7 +64,9 @@ fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
         bytes.push(b);
 
         if col == col_size {
-            print_chars(&bytes);
+            if print_char {
+                print_chars(&bytes);
+            }
             println!("");
             bytes.clear();
 
@@ -71,7 +81,9 @@ fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
         col += 1;
     }
 
-    print_chars(&bytes);
+    if print_char {
+        print_chars(&bytes);
+    }
 
     println!(""); // Line break at the last
 
@@ -79,7 +91,11 @@ fn print_hex(file_path: &str, col_size: usize) -> Result<(), String> {
 }
 
 fn main() {
-    let file_path = match get_file_path() {
+    let args: Vec<String> = env::args().collect();
+
+    let print_char = get_flag(&args, "-C");
+
+    let file_path = match get_file_path(&args) {
         Some(file_path) => file_path,
         None => {
             eprintln!("Error: file is not specified");
@@ -87,7 +103,7 @@ fn main() {
         }
     };
 
-    match print_hex(&file_path, 16) {
+    match print_hex(&file_path, 16, print_char) {
         Err(err) => {
             eprintln!("Error: {err}");
             process::exit(1);
