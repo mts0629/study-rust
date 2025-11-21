@@ -34,7 +34,19 @@ fn print_chars(bytes: &Vec<u8>) {
     }
 }
 
-fn print_hex(file_path: &str, col_size: usize, print_char: bool) -> Result<(), String> {
+#[derive(PartialEq)]
+enum ByteFormat {
+    Octal,
+    Hexadecimal,
+    Char,
+}
+
+fn print_hex(
+    file_path: &str,
+    col_size: usize,
+    fmt: ByteFormat,
+    print_char: bool,
+) -> Result<(), String> {
     let f = match fs::File::open(file_path) {
         Ok(f) => f,
         Err(err) => return Err(err.to_string()),
@@ -58,7 +70,20 @@ fn print_hex(file_path: &str, col_size: usize, print_char: bool) -> Result<(), S
             print!("0x{ofs:04x} | ");
         }
 
-        print!("{b:02x} ");
+        if fmt == ByteFormat::Octal {
+            print!("{b:03o} ");
+        } else if fmt == ByteFormat::Hexadecimal {
+            print!("{b:02x} ");
+        } else {
+            // ByteFormat::Char
+            let c = b as char;
+            if c.is_control() {
+                print!(". ");
+            } else {
+                print!("{c} ");
+            }
+        }
+
         col += 1;
 
         bytes.push(b);
@@ -95,6 +120,14 @@ fn main() {
 
     let print_char = get_flag(&args, "-C");
 
+    let fmt = if get_flag(&args, "-b") {
+        ByteFormat::Octal
+    } else if get_flag(&args, "-c") {
+        ByteFormat::Char
+    } else {
+        ByteFormat::Hexadecimal
+    };
+
     let file_path = match get_file_path(&args) {
         Some(file_path) => file_path,
         None => {
@@ -103,7 +136,7 @@ fn main() {
         }
     };
 
-    match print_hex(&file_path, 16, print_char) {
+    match print_hex(&file_path, 16, fmt, print_char) {
         Err(err) => {
             eprintln!("Error: {err}");
             process::exit(1);
